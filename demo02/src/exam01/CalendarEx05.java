@@ -7,7 +7,7 @@ public class CalendarEx05 {
 
 	public static void main(String[] args) {
 
-		// clear()는 Calendar객체의 모든 필드를 초기화
+		// clear()는 Calendar객체의 모든 필드를 초기화.
 		Calendar dt = Calendar.getInstance();
 		
 		// Sun May 09 22:19:46 KST 2021

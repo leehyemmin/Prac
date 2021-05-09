@@ -6,7 +6,7 @@ public class CalendarEx06 {
 
 	public static void main(String[] args) {
 		
-		// add()는 특정 필드의 값을 증가 또는 감소(다른 필드에 영향O)
+		// add()는 특정 필드의 값을 증가 또는 감소(다른 필드에 영향O).
 		Calendar date = Calendar.getInstance();
 		date.clear(); // 모든 필드를 초기화
 		date.set(2021, 7, 31); // 2021년 8월 31일로 설정

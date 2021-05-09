@@ -6,7 +6,7 @@ public class CalendarSetEx05 {
 
 	public static void main(String[] args) {
 		
-		// set()으로 날짜와 시간 지정하기
+		// set()으로 날짜와 시간 지정하기.
 		/*
 		void set(int Field, int value)
 		void set(int year, int month, int date)

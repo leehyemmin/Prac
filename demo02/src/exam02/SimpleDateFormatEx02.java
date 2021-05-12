@@ -11,7 +11,7 @@ public class SimpleDateFormatEx02 {
 
 		// 다형성 관점의 코드구문
 		DateFormat df = new SimpleDateFormat("yyyy년 MM월 dd일");
-		DateFormat df2 = new SimpleDateFormat("yyyy/MM/dd");
+		DateFormat df2 = new SimpleDateFormat("yyyy/MM/dd ");
 		
 		try {
 			Date d= df.parse("2015년 11월 23일");

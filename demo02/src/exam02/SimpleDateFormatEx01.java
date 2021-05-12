@@ -13,7 +13,7 @@ public class SimpleDateFormatEx01 {
 		SimpleDateFormat sdf5, sdf6, sdf7, sdf8, sdf9;
 		
 		sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-		sdf2 = new SimpleDateFormat("yy년 MM월 dd일 E요일");
+		sdf2 = new SimpleDateFormat("yy년 MM월 dd일 E요일 ");
 		sdf3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
 		sdf4 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a");
 		

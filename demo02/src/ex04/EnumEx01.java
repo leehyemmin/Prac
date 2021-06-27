@@ -1,13 +1,13 @@
 package ex04;
 //				0		1	  2		3
-enum Direction{EAST, SOUTH, WEST, NORTH}
+enum Direction11{EAST, SOUTH, WEST, NORTH}
 
 public class EnumEx01 {
 	public static void main(String[] args) {
 
-		Direction d1 = Direction.EAST; // 열거형타입.상수이름
-		Direction d2 = Direction.valueOf("WEST");
-		Direction d3 = Enum.valueOf(Direction.class, "EAST");
+		Direction11 d1 = Direction11.EAST; // 열거형타입.상수이름
+		Direction11 d2 = Direction11.valueOf("WEST");
+		Direction11 d3 = Enum.valueOf(Direction11.class, "EAST");
 		
 		System.out.println("d1= " + d1);
 		System.out.println("d2= " + d2);
@@ -34,6 +34,8 @@ public class EnumEx01 {
 		}
 		
 		Direction[] dArr = Direction.values();  // 열거형의 모든 상수를 배열로 반환
+		
+		System.out.println("Direction11 열거형의 개수? " + dArr.length);
 		
 		for(Direction d : dArr)
 			System.out.printf("%s=%d%n",d.name(),d.ordinal());

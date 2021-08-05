@@ -1,4 +1,4 @@
-package ex08;
+package pracEx1;
 
 public class OracleDao_2 implements DataAccessObject_2 {
 

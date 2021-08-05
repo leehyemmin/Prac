@@ -1,6 +1,6 @@
-package ex08;
+package pracEx1;
 
-import ex08.sound_1.Soundable;
+import pracEx1.sound_1.Soundable;
 
 public class Cat_1 implements Soundable {
 

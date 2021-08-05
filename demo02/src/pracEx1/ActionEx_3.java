@@ -1,4 +1,4 @@
-package ex08;
+package pracEx1;
 
 public class ActionEx_3 {
 	public static void main(String[] args) {

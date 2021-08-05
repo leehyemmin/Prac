@@ -1,4 +1,4 @@
-package ex08;
+package pracEx1;
 
 public interface DataAccessObject_2 {
 

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hammall.mapper.CartMapper">
+
+	<!-- 장바구니 추가 -->
+	<insert id="add_cart">
+		merge into cart_tbl c
+		using dual
+		on (mb_id = #{mb_id} and prod_num = #{prod_num})
+		when matched then
+		    update set cart_amount = cart_amount + #{cart_amount}
+		when not matched then
+		    insert(cart_code, prod_num, mb_id, cart_amount)
+		    values(seq_cart_code.nextval, #{prod_num}, #{mb_id}, #{cart_amount})
+	</insert>
+
+	<!-- 장바구니 리스트 -->
+	<select id="list_cart" resultType="com.hammall.domain.CartVOList">
+		select c.cart_code, p.prod_img, p.prod_name, c.cart_amount, p.prod_price
+		from product_tbl p inner join cart_tbl c
+		on p.prod_num = c.prod_num
+		where c.mb_id = #{mb_id}
+	</select>
+	
+	<!-- 수량 변경 -->
+	<update id="cart_amount_update">
+		update cart_tbl
+		set cart_amount = #{cart_amount}
+		where cart_code = #{cart_code}
+	</update>
+	
+	<!-- 상품 삭제 -->
+	<delete id="delete_cart">
+		delete from cart_tbl where cart_code = #{cart_code}
+	</delete>
+	
+	<!-- 장바구니 비우기 -->
+	<delete id="cartAll_delete">
+		delete from cart_tbl where mb_id = mb_id
+	</delete>
+	
+	<!-- 선택상품 삭제 -->
+	<delete id="cart_check_delete">
+		delete from cart_tbl
+		where cart_code in 
+			<foreach collection="list" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+	</delete>
+	
+	<!-- 선택상품 주문 -->
+	<delete id="cart_check_order">
+		delete from cart_tbl
+		where cart_code not in 
+			<foreach collection="list" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+	</delete>
+	
+	<!-- 장바구니에 있는 상품가격 합 -->
+	<select id="cart_money" resultType="com.hammall.dto.CartDTO">
+		select p.prod_name, sum(p.prod_price * c.cart_amount) amount
+		from cart_tbl c inner join product_tbl p
+		on c.prod_num = p.prod_num
+		group by p.prod_name
+		order by p.prod_name
+	</select>
+	
+
+
+
+
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hammall.mapper.BoardMapper">
+
+	<!-- 게시판 목록 -->
+	<select id="getList" resultType="com.hammall.domain.BoardVO">
+		<![CDATA[
+		select brd_num, mb_id, brd_title, brd_content, brd_reg_date, updateDate
+		from board_tbl
+		where brd_num > 0 and rownum <= 10
+		]]>
+	</select>
+	
+	
+	<!-- 글 등록하기 -->
+	<insert id="brd_insert">
+		insert into 
+				board_tbl(brd_num, mb_id, brd_title, brd_content)
+   			 values(seq_board_num.nextval, #{mb_id}, #{brd_title}, #{brd_content})
+	</insert>
+	
+	<!-- 글읽기 -->
+	<select id="brd_read" resultType="com.hammall.domain.BoardVO">
+		select brd_num, mb_id, brd_title, brd_content, brd_reg_date, updateDate
+		from board_tbl
+		where brd_num = #{brd_num}
+	</select>
+	
+	<!-- 글 수정하기 -->
+	<update id="brd_update">
+		update board_tbl set brd_title=#{brd_title}, brd_content=#{brd_content}, updateDate = sysdate
+		where brd_num = #{brd_num}
+	</update>
+	
+	<!-- 글 삭제하기 -->
+	<delete id="brd_delete">
+		delete from board_tbl where brd_num = #{brd_num}
+	</delete>
+	
+	
+	
+	<select id="getListWithPaging" resultType="com.hammall.domain.BoardVO">
+		<![CDATA[
+		select brd_num, mb_id, brd_title, brd_content, brd_reg_date, updateDate
+		from (select /*+ index_desc(board_tbl pk_brd_num) */ rownum rn, brd_num, mb_id, brd_title, brd_content, brd_reg_date, updateDate
+		   from board_tbl where brd_num > 0 and rownum <= #{pageNum} * #{amount})
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>
+	</select>
+	
+		<sql id="criteria">
+			<trim prefix="(" suffix=") AND" prefixOverrides="OR" >
+        		<foreach item="type" collection="typeArr">
+        		  <trim prefix="OR">
+        			<choose>
+        				<when test="type == 'T'.toString()">
+        					brd_title like '%' || #{keyword} || '%'
+        				</when>
+        				<when test="type == 'C'.toString()">
+        					brd_content like '%' || #{keyword} || '%'
+        				</when>
+        				<when test="type == 'W'.toString()">
+        					mb_id like '%' || #{keyword} || '%'
+        				</when>
+        			</choose>
+        		   </trim>	
+        		</foreach>
+        	</trim>
+		</sql>
+	
+	<select id="getListWithSearchPaging" resultType="com.hammall.domain.BoardVO">
+		<![CDATA[
+		select brd_num, mb_id, brd_title, brd_content, brd_reg_date, updateDate
+		from (select /*+ index_desc(board_tbl pk_brd_num) */ rownum rn, brd_num, mb_id, brd_title, brd_content, brd_reg_date, updateDate
+		        from board_tbl
+		        where
+		  ]]>      
+		  
+		  <include refid="criteria"></include>
+		  <![CDATA[
+		        rownum <= #{pageNum} * #{amount}
+		        )
+		    where rn > (#{pageNum}-1) * #{amount}
+		  ]]>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		select count(*) from board_tbl where
+		
+		<include refid="criteria"></include>
+		 <![CDATA[
+		 	brd_num > 0
+		 ]]>
+	</select>
+
+
+
+</mapper>

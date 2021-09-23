@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hammall.mapper.AdminMapper">
+
+	<!-- 로그인 인증 -->
+	<select id="login_check" resultType="com.hammall.domain.AdminVO">
+		select admin_id, admin_pw, admin_name, admin_date_late
+		from admin_tbl
+		where admin_id = #{admin_id} and admin_pw = #{admin_pw}
+	</select>
+	
+	<!-- 로그인 업뎃 -->
+	<update id="login_update">
+		update admin_tbl 
+		set admin_date_late = sysdate
+		where admin_id = #{admin_id}
+	</update>
+
+	<!-- 정보수정 폼 -->
+	<select id="ad_info" resultType="com.hammall.domain.AdminVO">
+		select admin_id, admin_pw, admin_name, admin_date_late
+		from admin_tbl
+		where admin_id = #{admin_id}
+	</select>
+
+	<!-- 정보수정 저장 -->
+	<update id="adModifyPOST">
+		update admin_tbl 
+			set 
+			    admin_pw = #{admin_pw}, 
+			    admin_name = #{admin_name}, 
+			    admin_date_late = sysdate
+			    
+			where admin_id = #{admin_id}
+	</update>
+
+
+
+
+
+</mapper>

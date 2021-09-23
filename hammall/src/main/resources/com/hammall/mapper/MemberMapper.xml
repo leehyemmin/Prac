@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hammall.mapper.MemberMapper">
+
+	<!-- MemberVO 가져오기 -->
+	<select id="readUserInfo" resultType="com.hammall.domain.MemberVO">
+		select mb_id, mb_pw, mb_name, mb_zipcode, mb_addr, mb_de_addr, mb_phone, 
+		mb_email, mb_email_e, mb_point, mb_datesub, mb_up_date, mb_last_date 
+		from mbjoin_tbl 
+		where mb_id = #{mb_id}
+	</select>
+
+	<!-- 회원가입 -->
+	<insert id="join">
+		insert into mbjoin_tbl(mb_id, mb_pw, mb_name, mb_zipcode, mb_addr, mb_de_addr, mb_phone, mb_email, mb_email_e)
+		values(#{mb_id}, #{mb_pw}, #{mb_name}, #{mb_zipcode}, #{mb_addr}, #{mb_de_addr}, 
+			   #{mb_phone}, #{mb_email}, #{mb_email_e})
+	</insert>
+
+	<!-- 아이디 중복체크 -->
+	<select id="checkIdDuplicate" resultType="int">
+		select count(*)
+		from mbjoin_tbl
+		where mb_id = #{mb_id}
+	</select>
+
+	<!-- 로그인 인증 -->
+	<select id="login_ok" resultType="com.hammall.domain.MemberVO">
+		select mb_id, mb_pw, mb_name, mb_zipcode, mb_addr, mb_de_addr, mb_phone, mb_email, mb_email_e, mb_point, mb_datesub, mb_up_date, mb_last_date 
+		from mbjoin_tbl
+		where mb_id = #{mb_id}
+	</select>
+	
+	<!-- 아이디 찾기 -->
+	<select id="find_id" resultType="String">
+		SELECT mb_id
+		from mbjoin_tbl
+		where mb_name=#{mb_name} and mb_email=#{mb_email}
+	</select>
+	
+	<!-- 비밀번호 찾기 -->
+	<select id="find_pwd" resultType="String">
+		select mb_pw
+		from mbjoin_tbl
+		where mb_id=#{mb_id} and mb_name=#{mb_name}
+	</select>
+	
+	<!-- 회원정보수정 폼 -->
+	<select id="member_info" resultType="com.hammall.domain.MemberVO">
+		select mb_id, mb_pw, mb_name, mb_zipcode, mb_addr, mb_de_addr, mb_phone, mb_email, mb_email_e, mb_point, mb_datesub, mb_up_date, mb_last_date 
+		from mbjoin_tbl
+		where mb_id = #{mb_id}
+	</select>
+	
+	<!-- 회원정보수정 저장 -->
+	<update id="modifyPOST">
+		update mbjoin_tbl
+		
+		set 
+		    mb_name 	= #{mb_name}, 
+		    mb_zipcode 	= #{mb_zipcode}, 
+		    mb_addr 	= #{mb_addr},
+		    mb_de_addr 	= #{mb_de_addr}, 
+		    mb_phone 	= #{mb_phone}, 
+		    mb_email 	= #{mb_email}, 
+		    mb_email_e 	= #{mb_email_e},
+		    mb_up_date 	= sysdate
+		    
+		where mb_id = #{mb_id}
+	</update>
+	
+	<!-- VO클래스 필드와 테이블컬럼명이 다른 경우 -->
+	<resultMap type="com.hammall.domain.UserInfoVO" id="userinfo">
+	
+		<id property="user_id" column="mb_id" />
+		<result property="user_id" column="mb_id"/>
+		<result property="user_pw" column="mb_pw"/>
+		<result property="user_name" column="mb_name"/>
+		<result property="user_zipcode" column="mb_zipcode"/>
+		<result property="user_addr" column="mb_addr"/>
+		<result property="user_de_addr" column="mb_de_addr"/>
+		<result property="user_phone" column="mb_phone"/>
+		<result property="user_email" column="mb_email"/>
+		<result property="user_email_e" column="mb_email_e"/>
+		<result property="user_point" column="mb_point"/>
+		<result property="user_datesub" column="mb_datesub"/>
+		<result property="user_up_date" column="mb_up_date"/>
+		<result property="user_last_date" column="mb_last_date"/>
+	</resultMap>
+	
+	<!-- 탈퇴하기 -->
+	<delete id="mb_delete">
+		delete from mbjoin_tbl 
+		where mb_id= #{mb_id}
+	</delete>
+	
+	<select id="userinfo_list" resultMap="userinfo">
+		
+		select mb_id, mb_pw, mb_name, mb_zipcode, mb_addr, mb_de_addr, mb_phone, 
+				mb_email, mb_email_e, mb_point, mb_datesub, mb_up_date, mb_last_date
+		from mbjoin_tbl
+	</select>
+	
+	
+	
+	
+
+</mapper>

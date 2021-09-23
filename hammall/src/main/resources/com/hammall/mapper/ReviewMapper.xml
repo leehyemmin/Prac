@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hammall.mapper.ReviewMapper">
+
+
+	<!-- 상품후기 페이징 -->
+	<select id="getReviewListWithPaging" resultType="com.hammall.domain.ReviewVO">
+	
+		<![CDATA[
+		select rev_num, mb_id, prod_num, rev_score, rev_content, rev_reg_date
+		from (
+			 select /*+ index_desc(review_tbl PK_REV_NUM) */ rownum rn, rev_num, mb_id, prod_num, rev_score, rev_content, rev_reg_date
+		    from review_tbl where prod_num = #{prod_num} and rev_num > 0 and rownum > 0 and rownum <= #{cri.pageNum} * #{cri.amount}
+		     )
+		     
+		where rn > (#{cri.pageNum} - 1) * #{cri.amount}
+		]]>
+		
+	</select>
+	
+	<!-- 상품후기 개수 -->
+	<select id="getCountByProduct_prod_num" resultType="int">
+		select count(*) from review_tbl where prod_num = #{prod_num}
+	</select>
+	
+	
+	<!-- 상품후기 등록 -->
+	<insert id="review_register">
+		insert into review_tbl(rev_num, mb_id, prod_num, rev_score, rev_content)
+    		values(seq_review_num.nextval, #{mb_id}, #{prod_num}, #{rev_score}, #{rev_content})
+	</insert>
+	
+	<!-- 상품후기 수정 -->
+	<update id="review_modify">
+		update review_tbl set rev_content = #{rev_content}, rev_score = #{rev_score}
+		where rev_num = #{rev_num}
+	</update>
+
+	<!--  상품후기 삭제 -->
+	<delete id="review_delete">
+		delete from review_tbl where rev_num = #{rev_num}
+	</delete>
+
+
+</mapper>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hammall.mapper.OrderMapper">
+
+	<!-- 주문정보 -->
+	<insert id="order_add">
+	
+		<selectKey keyProperty="ord_code" resultType="long" order="BEFORE">
+			select seq_ord_code.nextval from dual
+		</selectKey>
+		
+		insert into order_tbl(ord_code, mb_id, ord_name, ord_zipcode, ord_addr, ord_de_addr, ord_phone, ord_email, ord_price)
+		values(#{ord_code}, #{mb_id}, #{ord_name}, #{ord_zipcode}, #{ord_addr}, #{ord_de_addr}, #{ord_phone}, #{ord_email}, #{ord_price})
+	</insert>
+
+	<!-- 주문상세(장바구니테이블에 있는 상품을 기반으로 상품상세테이블 데이터 삽입하기) -->
+	<insert id="orderDetail_add">
+		insert into de_order_tbl(ord_code, prod_num, ord_amount, ord_price)
+		    select #{ord_code}, p.prod_num, c.cart_amount, p.prod_price
+		    from cart_tbl c inner join product_tbl p
+		    on c.prod_num = p.prod_num
+		    where mb_id = #{mb_id}
+	</insert>
+
+	<!-- 즉시구매 -->
+	<!-- jsp에서 구매상품 상세정보를 제공받아서 상품상세테이블 데이터 삽입하기 -->
+	<insert id="orderDirect_add">
+		insert into de_order_tbl(ord_code, prod_num, ord_amount, ord_price)
+		values(#{ord_code}, #{prod_num}, #{ord_amount}, #{ord_price})
+	</insert>
+
+
+	<sql id="criteria">
+		<trim prefix="(" suffix=") and" prefixOverrides="OR">
+			<foreach item="type" collection="typeArr">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'N'.toString()">
+							prod_name like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'D'.toString()">
+							prod_detail like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'C'.toString()">
+							prod_company like '%' || #{keyword} || '%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+	
+	<!-- 사용자 주문목록 -->
+	<select id="mb_order_list" resultType="com.hammall.domain.OrderVO">
+		select ord_code, ord_name, ord_zipcode, ord_addr, ord_de_addr, ord_price, ord_date
+		from order_tbl
+		where mb_id = #{mb_id}
+		order by ord_code desc
+	</select>
+	
+	<!-- 사용자 주문상세보기 -->
+	<select id="mb_deorder_list" resultType="com.hammall.domain.OrderDetailListVO">
+		select od.ord_code, od.prod_num, od.ord_amount, od.ord_price, p.prod_name, p.prod_img
+		from de_order_tbl od inner join product_tbl p
+		on od.prod_num = p.prod_num
+		where od.ord_code = #{ord_code}
+	</select>
+
+	<!-- 주문리스트 -->
+	<select id="orderInfo_list" resultType="com.hammall.domain.OrderVO">
+		select ord_code, mb_id, ord_name, ord_zipcode, ord_addr, ord_de_addr, ord_phone, ord_email, ord_price, ord_date
+		from
+		
+	    (select /*+ index_desc(order_tbl PK_ORD_CODE) */ rownum rn, ord_code, mb_id, ord_name, ord_zipcode, ord_addr, ord_de_addr, ord_phone, ord_email, ord_price, ord_date
+	    from order_tbl
+	    where ord_code > 0 and
+	    
+	    <![CDATA[
+	    rownum > 0 and rownum <= #{pageNum} * #{amount})
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>
+	</select>
+
+	<!-- 주문상품개수 -->
+	<select id="getTotalCountOrder" resultType="int">
+		select count(*) from order_tbl where
+		
+		<include refid="criteria"></include>
+		
+		<![CDATA[
+		ord_code > 0
+		]]>
+	</select>
+	
+	<!-- 관리자 주문상세 -->
+	<select id="order_detail_list" resultType="com.hammall.domain.OrderDetailListVO">
+		
+		select od.ord_code, od.prod_num, od.ord_amount, od.ord_price, p.prod_name, p.prod_img
+		from de_order_tbl od inner join product_tbl p
+		on od.prod_num = p.prod_num
+		where od.ord_code = #{ord_code}
+		
+	</select>
+	
+	
+	
+	<!-- 월별 통계매출 -->
+	<select id="order_sale" resultType="com.hammall.dto.OrderSaleDTO">
+		<![CDATA[
+			select to_char(b.dt, 'YYYY-MM-DD') as hiredate, to_char(b.dt, 'DY') as day, nvl(a.cnt,0) as cnt
+			from (
+			        select to_char(hire_date, 'YYYY-MM-DD') as hiredate, count(*) as cnt
+			        from employees
+			        where hire_date between to_date(#{startDate}, 'YYYY-MM-DD') and to_date(#{endDate}, 'YYYY-MM-DD')
+			        group by hire_date
+			) a
+			,
+			(
+			    select to_date(#{startDate}, 'YYYY-MM-DD') + level -1 as dt
+			    from dual
+			    connect by level <= (to_date(#{endDate}, 'YYYY-MM-DD') - to_date(#{startDate}, 'YYYY-MM-DD')+1)
+			) b
+			where b.dt = a.hiredate(+)
+			order by b.dt
+		]]>
+	</select>
+
+
+</mapper>

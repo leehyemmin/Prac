@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hammall.mapper.UserProductMapper">
+
+	<!-- 1차 카테고리 -->
+	<select id="getCategoryList" resultType="com.hammall.domain.CategoryVO">
+		select ctg_code, ctg_prt_code, ctg_name 
+		from category_tbl
+		where ctg_prt_code is null
+	</select>
+
+	<!-- 2차 카테고리 -->
+	<select id="getSubCategoryList" resultType="com.hammall.domain.CategoryVO">
+		select ctg_code, ctg_prt_code, ctg_name 
+		from category_tbl
+		where ctg_prt_code = #{ctg_code}
+	</select>
+
+	<!-- 2차 카테고리에 해당하는 상품목록 -->
+	<select id="getProductListBysubCate" resultType="com.hammall.domain.ProductVO">
+		<![CDATA[
+		select prod_num, ctg_code, ctg_prt_code, prod_name, prod_price, prod_discount, prod_detail, prod_color,
+		    	prod_size, prod_company, prod_img, prod_amount, prod_buy, prod_datesub, prod_up_date
+		from
+		
+			(select /*+ index_desc(product_tbl PK_PROD_NUM)*/ rownum rn, prod_num,ctg_code, ctg_prt_code, prod_name, prod_price, prod_discount, prod_detail, prod_color,
+		        prod_size, prod_company, prod_img, prod_amount, prod_buy, prod_datesub, prod_up_date
+		    from product_tbl where prod_num > 0 and ctg_code = #{ctg_code} and
+		    
+		    rownum > 0 and rownum <= #{cri.pageNum} * #{cri.amount})
+		    
+		where rn > (#{cri.pageNum}-1) * #{cri.amount}
+		 ]]>
+	</select>
+
+	<!-- 2차 카테고리에 해당하는 상품 개수 -->
+	<select id="getTotalCountProductBySubCate" resultType="int">
+		select count(*)
+		from product_tbl
+		where prod_num > 0 and ctg_code = #{ctg_code}
+	</select>
+
+	<!-- 상품조회 -->
+	<select id="getProductByNum" resultType="com.hammall.domain.ProductVO">
+		select prod_num, ctg_code, ctg_prt_code, prod_name, prod_price, prod_discount, prod_detail, prod_color, prod_size, prod_company, prod_img, prod_amount, prod_buy, prod_datesub, prod_up_date
+		from product_tbl
+		where prod_num = #{prod_num}
+	</select>
+
+
+
+</mapper>

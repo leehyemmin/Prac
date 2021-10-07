@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hammall.mapper.AdProductMapper">
+
+	<!-- 1차 카테고리 -->
+	<select id="getCategoryList" resultType="com.hammall.domain.CategoryVO">
+		select ctg_code, ctg_prt_code, ctg_name
+		from category_tbl
+		where ctg_prt_code is null
+	</select>
+
+	<!-- 2차 카테고리 -->
+	<select id="getSubCategoryList" resultType="com.hammall.domain.CategoryVO">
+		select ctg_code, ctg_prt_code, ctg_name
+		from category_tbl
+		where ctg_prt_code = #{ctg_code}
+	</select>
+
+	<!-- 상품 등록 -->
+	<insert id="product_insert">
+		insert into 
+			product_tbl(prod_num, ctg_prt_code, ctg_code, prod_name, prod_price, prod_discount, prod_detail, prod_color, prod_size, prod_company, prod_img, prod_amount, prod_buy)
+        values(seq_prod_num.nextval, #{ctg_prt_code}, #{ctg_code}, #{prod_name}, #{prod_price}, #{prod_discount}, #{prod_detail}, #{prod_color}, #{prod_size}, #{prod_company}, #{prod_img}, #{prod_amount}, #{prod_buy})
+	</insert>
+
+	<sql id="criteria">
+		<trim prefix="(" suffix=") and" prefixOverrides="OR">
+			<foreach item="type" collection="typeArr">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'N'.toString()">
+							prod_name like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'D'.toString()">
+							prod_detail like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'C'.toString()">
+							prod_company like '%' || #{keyword} || '%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+
+	<!-- 상품 리스트 -->
+	<select id="product_list" resultType="com.hammall.domain.ProductVO">
+	<![CDATA[
+		select prod_num, ctg_code, ctg_prt_code, prod_name, prod_price, prod_discount, prod_detail, prod_color, 
+				prod_size, prod_company, prod_img, prod_amount, prod_buy, prod_datesub, prod_up_date
+		from 
+		    (select /*+ index_desc(product_tbl PK_PROD_NUM)*/ rownum rn, prod_num, ctg_code, ctg_prt_code, prod_name, prod_price, 
+		    	prod_discount, prod_detail, prod_color, prod_size, prod_company, prod_img, prod_amount, prod_buy, prod_datesub, prod_up_date
+		    from product_tbl where prod_num > 0 and 
+		    ]]>
+		    
+		    <include refid="criteria"></include>
+	<![CDATA[    
+		    rownum > 0 and rownum <= #{pageNum} * #{amount})
+		    
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>
+	</select>
+
+	<select id="getTotalCountProduct" resultType="int">
+		select count(*) from product_tbl where 
+		
+		<include refid="criteria"></include>
+		
+		<![CDATA[
+		prod_num > 0
+		]]>
+	</select>
+
+	<!-- 상품 수정폼 -->
+	<select id="product_modify" resultType="com.hammall.domain.ProductVO">
+		select prod_num, ctg_code, ctg_prt_code, prod_name, prod_price, prod_discount, prod_detail, prod_color, prod_size, prod_company, prod_img, prod_amount, prod_buy, prod_datesub, prod_up_date
+		from product_tbl
+		where prod_num = #{prod_num}
+	</select>
+	
+	<!-- 상품 수정 저장 -->
+	<update id="product_modifyOk">
+		update product_tbl
+		
+			    set ctg_prt_code = #{ctg_prt_code},
+			        ctg_code = #{ctg_code}, 
+			        prod_name = #{prod_name}, 
+			        prod_price = #{prod_price}, 
+			        prod_discount = #{prod_discount}, 
+			        prod_detail = #{prod_detail}, 
+			        prod_color = #{prod_color}, 
+			        prod_size = #{prod_size}, 
+			        prod_company = #{prod_company}, 
+			        prod_img = #{prod_img}, 
+			        prod_amount = #{prod_amount}, 
+			        prod_buy = #{prod_buy},
+			        prod_up_date = sysdate
+			        
+			where prod_num = #{prod_num}
+	</update>
+	
+	<!-- 상품 삭제 -->
+	<delete id="product_deleteOk">
+		delete from product_tbl
+		where prod_num = #{prod_num}
+	</delete>
+	
+	
+	
+	
+
+</mapper>
